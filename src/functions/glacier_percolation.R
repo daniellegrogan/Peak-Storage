@@ -47,7 +47,8 @@ glacier_percolation = function(wbm.path,   # path to wbm files. for yearly files
   total.perc.brick = overlay(perc.ineff, 
                              perc.rice, 
                              fun = function(x,y){return(365*(x+y))},  # x365 to convert from mean annual to annual sum 
-                             filename = file.path(out.path, "Perc_pg_mmYr.nc"))
+                             filename = file.path(out.path, "Perc_pg_mmYr.nc"),
+                             overwrite=T)
   
   #      spatial aggregation by basin. Output timeseries (csv) to file
   #       time series 
