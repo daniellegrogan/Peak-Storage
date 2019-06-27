@@ -12,11 +12,6 @@ library(raster)
 library(rgdal)
 library(rgeos)
 
-source(file.path(base.path, "git_repos/WBMr/wbm_load.R"))
-source(file.path(base.path, "git_repos/WBMr/spatial_aggregation.R"))
-source(file.path(base.path, "git_repos/NASA_HiMAT/glacier_runoff_subset.R"))
-source(file.path(base.path, "git_repos/NASA_HiMAT/glacier_runoff_m3_to_mm.R"))
-
 ############################################################################################################
 glacier_percolation = function(wbm.path,   # path to wbm files. for yearly files, stop after "/yearly"
                                shape,      # shapefile for basin aggregation
