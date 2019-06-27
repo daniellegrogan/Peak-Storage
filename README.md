@@ -1,4 +1,4 @@
-# Peak-Storage
+# Peak_Storage
 R code for Peak Storage paper (NASA HiMAT)
 
 Functions in src/functions:
