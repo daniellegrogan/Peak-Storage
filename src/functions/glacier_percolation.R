@@ -67,7 +67,6 @@ glacier_percolation = function(wbm.path,   # path to wbm files. for yearly files
   
   # unit conversion: glacier runoff in m3/year to mm/year
   km2_to_m2 = 1e6
-  m_to_mm = 1e3
   area.glacier.grid = km2_to_m2*raster::area(glacier.runoff) # unit: m2
   glacier.runoff.mm = glacier_runoff_m3_to_mm(glacier.runoff, 
                                               out.path = out.path, 

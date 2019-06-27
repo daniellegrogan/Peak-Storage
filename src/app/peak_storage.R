@@ -35,6 +35,8 @@ basin.shape = readOGR("data/basins_hma", "basins_hma")
 wbm.path = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers/ERA_hist/yearly"
 gl.path  =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 
+# years to analyze
+years = seq(2000, 2003)
 
 ### MAIN ###
 # for each step below, produce:
@@ -54,7 +56,7 @@ glacier_percolation(wbm.path = wbm.path,         # path to wbm files. for yearly
                     gl.path  = gl.path,          # path to glacier runoff files
                     gcm      = NA,               # GCM model name, if analyzing future RCP
                     rcp      = 'historical',     # one of: 'histroical', 'rcp45', 'rcp85'
-                    years    = seq(2000, 2003),  # years for analysis
+                    years    = years,            # years for analysis
                     out.path = "results")        # path to save all output
 
 # 2. Irrigation water supplied by glacier runoff through groundwater withdrawals
@@ -68,8 +70,13 @@ glacier_percolation(wbm.path = wbm.path,         # path to wbm files. for yearly
 #       time series (1980 - 2099) and 
 #       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 
+glacier_gw_irr.R(wbm.path = wbm.path,      # path to wbm files. for yearly files, stop after "/yearly"
+                 shape    = basin.shape,   # shapefile for basin aggregation
+                 years    = years,         # years for analysis
+                 out.path = "results")     # path to save all output
+  
 # 3. Glacier runoff exported to ocean
-#    a. in mm/year: 
+#    a. in km3/year 
 #       time series (1980 - 2099) and 
 #       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    b. as % of glacier runoff:

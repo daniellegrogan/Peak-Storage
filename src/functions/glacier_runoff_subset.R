@@ -1,4 +1,4 @@
-# glacier_runoff_subset()
+# glacier_runoff_subset.R
 # Function to subset PyGEM glacier runoff output to given years
 # Project: NASA HiMAT
 # Danielle S Grogan
