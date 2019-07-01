@@ -15,11 +15,14 @@ glacier_runoff_subset = function(gl.path,     # path to glacier model output
                                  out.yr = 0){ # 0 for output in m3/month, 1 for output in m3/year
 
   # glacier runoff from glacier model
-  if(rcp == 'historical'){
+  if(rcp == 'historical' & is.na(gcm)){
     glacier.runoff = brick(file.path(gl.path, "ERA-Interim_c2_ba1_100sets_1980_2017_m.nc"),
                            varname='runoff')
+  }else if(rcp == 'historical'){
+    glacier.runoff = brick(paste(gl.path, "/", model, "_rcp45_c2_ba1_100sets_2000_2100_m.nc", sep=""),
+                           varname='runoff')
   }else{
-    glacier.runoff = brick(paste(gl.path, "/", model, "_", rcp, "_c2_ba1_100sets_1980_2100_m.nc", sep=""),
+    glacier.runoff = brick(paste(gl.path, "/", model, "_", rcp, "_c2_ba1_100sets_2000_2100_m.nc", sep=""),
                            varname='runoff')
   }
   

@@ -55,7 +55,7 @@ glacier_to_ocean = function(wbm.path,        # path to wbm output. for yearly fi
   
   q.pg.km3yr = q.pg.frac.mouth * q.m3s.mouth * seconds_per_year * km3_per_m3
   rownames(q.pg.km3yr) = basin.nm
-  colnames(q.pg.km3yr) = yrs
+  colnames(q.pg.km3yr) = years
   write.csv(q.pg.km3yr, file.path(out.path, "Glacier_to_ocean_km3Yr.csv"))
 
   
