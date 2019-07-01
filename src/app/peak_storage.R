@@ -37,7 +37,7 @@ gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 netwk.path = "/net/nfs/zero/data3/WBM_TrANS/data"
 
 # years to analyze
-years = seq(2000, 2003)
+years = seq(2000, 2099)
 
 ### MAIN ###
 # for each step below, produce:
@@ -138,3 +138,20 @@ glacier_to_cropET(wbm.path              = wbm.path,               # path to wbm 
                   years                  = years,                 # years for analysis
                   shape                  = basin.shape,           # shapefile to aggregate basins
                   out.path               = "results")             # path to save all output
+
+
+################################################################################################################################
+# Plots #
+### WORK IN PROGRESS###
+
+# cumulative runoff vs cumulative export
+gl_runoff = read.csv("results/Glacier_runoff_basins_km3Yr.csv")
+gl_ocean  = read.csv("results/Glacier_to_ocean_km3Yr.csv")
+gl_et     = read.csv("results/ET_pg_basins_km3Yr.csv")
+
+# sum runoff and export over all basins
+gl_roff = colSums(gl_runoff[,2:4])
+gl_exp  = colSums(gl_ocean[,2:4]) + colSums(gl_et[,2:4])
+
+plot(cumsum(gl_roff), type='l', ylim=c(min(gl_exp), max(gl_roff)))
+lines(cumsum(gl_exp), col='blue')
