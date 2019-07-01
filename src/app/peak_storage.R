@@ -1,7 +1,7 @@
 # Analysis steps for Peak Storage
 # Project: NASA HiMAT
 # Danielle S Grogan
-# last updated: 2019-06-27
+# last updated: 2019-07-01
 
 ### R Libraries
 library(RCurl)  # enables sourcing R code from github
