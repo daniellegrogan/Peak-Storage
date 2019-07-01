@@ -73,10 +73,8 @@ write.csv(glacier.runoff.basins, "results/Glacier_runoff_basins_km3Yr.csv")
 # 1. Total percolation of glacier runoff into groundwater system
 #    a. in mm/year: 
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    b. as % of glacier runoff:
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 
 glacier_percolation(wbm.path = wbm.path,                           # path to wbm files. for yearly files, stop after "/yearly"
                     shape    = basin.shape,                        # shapefile for basin aggregation
@@ -87,13 +85,11 @@ glacier_percolation(wbm.path = wbm.path,                           # path to wbm
 # 2. Irrigation water supplied by glacier runoff through groundwater withdrawals
 #    a. in mm/year: 
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    b. as % of Gross Irrigation:
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    c. as % of irrigation from groundwater sources:
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
+
 
 glacier_gw_irr.R(wbm.path = wbm.path,      # path to wbm files. for yearly files, stop after "/yearly"
                  shape    = basin.shape,   # shapefile for basin aggregation
@@ -103,10 +99,8 @@ glacier_gw_irr.R(wbm.path = wbm.path,      # path to wbm files. for yearly files
 # 3. Glacier runoff exported to ocean
 #    a. in km3/year 
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    b. as % of glacier runoff:
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 
 # inputs needed to identify basin mouths
 basin.ID = raster(file.path(netwk.path, "HiMAT_full_210_IDs_Subset.asc"))
@@ -124,9 +118,7 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
                           basin.shape$name == "Yellow",]
 
 glacier_to_ocean(wbm.path   = wbm.path,              # path to wbm output. for yearly files, stop after "/yearly"
-                 gl.path    = gl.path,               # path to glacier runoff files
-                 gcm        = NA,                    # GCM model name, if analyzing future RCP
-                 rcp        = 'historical',          # one of: 'histroical', 'rcp45', 'rcp85'
+                 glacier.runoff.basins = glacier.runoff.basins,
                  years      = years,                 # years for analysis
                  basin.ID   = basin.ID,              # basinID file associated with WBM river network
                  basin.list = ex.basins$Basin_ID,    # list of basin IDs from which to extract river mouth data. Use all IDs in basinID file if NA
@@ -138,9 +130,11 @@ glacier_to_ocean(wbm.path   = wbm.path,              # path to wbm output. for y
 # 4. Glacier runoff --> crop ET
 #    a. in mm/year: 
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 #    b. as % of glacier runoff:
 #       time series (1980 - 2099) and 
-#       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 
-
+glacier_to_cropET(wbm.path              = wbm.path,               # path to wbm output. for yearly files, stop after "/yearly"
+                  glacier.runoff.basins = glacier.runoff.basins,  # glacier runoff: km3/year per basin
+                  years                  = years,                 # years for analysis
+                  shape                  = basin.shape,           # shapefile to aggregate basins
+                  out.path               = "results")             # path to save all output

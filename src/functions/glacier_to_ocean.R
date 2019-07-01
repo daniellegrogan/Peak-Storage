@@ -16,7 +16,7 @@ library(rgeos)
 
 ############################################################################################################
 glacier_to_ocean = function(wbm.path,        # path to wbm output. for yearly files, stop after "/yearly"
-                            glacier.runoff.basins = glacier.runoff.basins,  # glacier runoff: km3/year per basin
+                            glacier.runoff.basins,  # glacier runoff: km3/year per basin
                             years,           # years for analysis
                             basin.ID,        # basinID file associated with WBM river network
                             basin.list,      # list of basin IDs from which to extract river mouth data.
