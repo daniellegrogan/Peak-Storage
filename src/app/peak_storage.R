@@ -44,6 +44,32 @@ years = seq(2000, 2003)
 # i.  Time series per basin
 # ii. Map (grid cells)  # Not yet coded
 
+
+# 0. Calculate glacier runoff by basin (km3/year): required input for analysis below
+# glacier runoff: output in m3
+glacier.runoff = glacier_runoff_subset(gl.path = gl.path,          # path to glacier model output
+                                       model   = gcm,              # If rcp != historical, also supply a GCM model name
+                                       rcp     = rcp,              # rcp = one of: "historical", "rcp45", "rcp85"
+                                       st.yr   = min(years),       # start year to subset
+                                       end.yr  = max(years),       # end year to subset
+                                       out.yr = 1)                 # 0 = output monthly.  1 for yearly
+
+glacier.runoff.mm = glacier_runoff_m3_to_mm(glacier.runoff, 
+                                            out.path = "results", 
+                                            out.nm   = "Glacier_runoff_mmYr.nc",
+                                            overwrite = T)
+
+# spatial aggregation of glacier runoff: km3 per basin
+glacier.runoff.basins = spatial_aggregation(raster.data = glacier.runoff.mm,
+                                            shapefile   = shape,
+                                            s           = 1, 
+                                            cell.area   = 1,
+                                            weight      = T, 
+                                            poly.out    = F)
+colnames(glacier.runoff.basins) = years
+rownames(glacier.runoff.basins) = shape$name
+write.csv(glacier.runoff.basins, "results/Glacier_runoff_basins_km3Yr.csv")
+
 # 1. Total percolation of glacier runoff into groundwater system
 #    a. in mm/year: 
 #       time series (1980 - 2099) and 
@@ -52,13 +78,11 @@ years = seq(2000, 2003)
 #       time series (1980 - 2099) and 
 #       mean annual per climatology (1980 - 2009, 2010 - 2039, 2040 - 2069, 2070 - 2099)
 
-glacier_percolation(wbm.path = wbm.path,         # path to wbm files. for yearly files, stop after "/yearly"
-                    shape    = basin.shape,      # shapefile for basin aggregation
-                    gl.path  = gl.path,          # path to glacier runoff files
-                    gcm      = NA,               # GCM model name, if analyzing future RCP
-                    rcp      = 'historical',     # one of: 'histroical', 'rcp45', 'rcp85'
-                    years    = years,            # years for analysis
-                    out.path = "results")        # path to save all output
+glacier_percolation(wbm.path = wbm.path,                           # path to wbm files. for yearly files, stop after "/yearly"
+                    shape    = basin.shape,                        # shapefile for basin aggregation
+                    glacier.runoff.basins = glacier.runoff.basins, # glacier runoff: km3/year per basin
+                    years    = years,                              # years for analysis
+                    out.path = "results")                          # path to save all output
 
 # 2. Irrigation water supplied by glacier runoff through groundwater withdrawals
 #    a. in mm/year: 

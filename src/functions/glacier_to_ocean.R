@@ -4,12 +4,19 @@
 #    a. in km3/year
 #    b. as % of glacier runoff
 
+# Project: NASA HiMAT
+# Danielle S Grogan
+# last updated: 2019-07-01
+
 # depends on function mouth_ts() from WBMr git repo
 
+library(raster)
+library(rgdal)
+library(rgeos)
+
+############################################################################################################
 glacier_to_ocean = function(wbm.path,        # path to wbm output. for yearly files, stop after "/yearly"
-                            gl.path,         # path to glacier runoff files
-                            gcm,             # GCM model name, if analyzing future RCP
-                            rcp,             # one of: 'histroical', 'rcp45', 'rcp85'
+                            glacier.runoff.basins = glacier.runoff.basins,  # glacier runoff: km3/year per basin
                             years,           # years for analysis
                             basin.ID,        # basinID file associated with WBM river network
                             basin.list,      # list of basin IDs from which to extract river mouth data.
@@ -53,34 +60,10 @@ glacier_to_ocean = function(wbm.path,        # path to wbm output. for yearly fi
 
   
   #    b. as % of glacier runoff
-  
-  # glacier runoff: output in m3
-  glacier.runoff = glacier_runoff_subset(gl.path = gl.path,          # path to glacier model output
-                                         model   = gcm,              # If rcp != historical, also supply a GCM model name
-                                         rcp     = rcp,              # rcp = one of: "historical", "rcp45", "rcp85"
-                                         st.yr   = min(years),       # start year to subset
-                                         end.yr  = max(years),       # end year to subset
-                                         out.yr = 1)                 # 0 = output monthly.  1 for yearly
-  
-  glacier.runoff.mm = glacier_runoff_m3_to_mm(glacier.runoff, 
-                                              out.path = NA, 
-                                              out.nm = NA,
-                                              overwrite = F)
-  
-  # spatial aggregation of glacier runoff: km3 per basin
-  glacier.runoff.basins = spatial_aggregation(raster.data = glacier.runoff.mm,
-                                              shapefile   = shape,
-                                              s           = 1, 
-                                              cell.area   = 1,
-                                              weight      = T, 
-                                              poly.out    = F)
-  colnames(glacier.runoff.basins) = years
-  rownames(glacier.runoff.basins) = shape$name
-
   glacier.runoff.ex = glacier.runoff.basins[rownames(glacier.runoff.basins) %in% basin.nm,]  
   q.pg.perc = 100*q.pg.km3yr/glacier.runoff.ex
   q.pg.perc[is.infinite(q.pg.perc)] = NA
   
   write.csv(q.pg.perc, file.path(out.path, "Glacier_to_ocean_percentGlRunoff.csv"))
 }
-
+############################################################################################################
