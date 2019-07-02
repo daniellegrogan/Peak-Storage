@@ -43,9 +43,9 @@ gl.analysis = function(wbm.path,
   f1 = file.path(strsplit(out.path, "/")[[1]][1], strsplit(out.path, "/")[[1]][2])
   if(!file.exists(f1)){
     dir.create(f1)
-    if(!file.exists(out.path)){
-      dir.create(out.path)
-    }
+  }
+  if(!file.exists(out.path)){
+    dir.create(out.path)
   }
   
   # Calculate glacier runoff by basin (km3/year): required input for analysis below
@@ -204,12 +204,16 @@ lapply(gcm.list,
        )
 
 ### Future GCMs
-years = seq(2000, 2005)
+years = seq(2006, 2099)
 
+gcm.list = c("CanESM2", 
+             "CCSM4",
+             "CNRM-CM5",
+             "CSIRO-Mk3-6-0")
 # RCP 4.5
 lapply(gcm.list, 
        FUN = function(x) 
-       {gl.analysis(wbm.path = file.path(wbm.base, x, "rcp45"),
+       {gl.analysis(wbm.path = file.path(wbm.base, x, "rcp45/yearly"),
                     basin.shape,
                     basin.ID,
                     up.area,
@@ -224,7 +228,7 @@ lapply(gcm.list,
 # RCP 8.5
 lapply(gcm.list, 
        FUN = function(x) 
-       {gl.analysis(wbm.path = file.path(wbm.base, x, "rcp85"),
+       {gl.analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
                     basin.shape,
                     basin.ID,
                     up.area,
@@ -241,23 +245,48 @@ lapply(gcm.list,
 ### WORK IN PROGRESS###
 
 # cumulative runoff vs cumulative export
-gl_runoff = read.csv("results/CanESM2/historical/Glacier_runoff_basins_km3Yr.csv")
-gl_ocean  = read.csv("results/CanESM2/historical/Glacier_to_ocean_km3Yr.csv")
-gl_et     = read.csv("results/CanESM2/historical/ET_pg_basins_km3Yr.csv")
+gl_runoff = read.csv("results/CanESM2/rcp45/Glacier_runoff_basins_km3Yr.csv")
+gl_ocean  = read.csv("results/CanESM2/rcp45/Glacier_to_ocean_km3Yr.csv")
+gl_et     = read.csv("results/CanESM2/rcp45/ET_pg_basins_km3Yr.csv")
 
 # sum runoff and export over all basins
 gl_roff = colSums(gl_runoff[,2:ncol(gl_runoff)])
 gl_exp  = colSums(gl_ocean[,2:ncol(gl_ocean)]) + colSums(gl_et[,2:ncol(gl_et)])
 
-plot(years, 
-     cumsum(gl_roff), type='l', 
+plot(years,
+     cumsum(gl_roff), type='l',
      ylim=c(min(gl_exp), max(cumsum(gl_roff))),
-     ylab = "Cumulative Volume (km3/year)", 
+     ylab = "Cumulative Volume (km3/year)",
      xlab = "Year")
 lines(years,
-      cumsum(gl_exp), 
+      cumsum(gl_exp),
       col='blue')
 
 plot(years, gl_roff, type='l',
      ylim=c(min(gl_exp), max((gl_roff))))
 lines(years, gl_exp, col='blue')
+lines(years, (gl_roff - gl_exp), col='red')
+lines(years, cumsum(gl_exp), type='l', col='orange')
+
+# indus
+ind_roff  = gl_runoff[which(gl_runoff$X == "Indus"),2:95]
+ind_ocean = gl_ocean[which(gl_ocean$X == "Indus"),2:95]
+ind_et    = gl_et[which(gl_et$X == "Indus"),2:95]
+ind_exp = ind_ocean + ind_et
+ind_stor = (ind_roff - ind_exp)
+
+plot(years, ind_roff, type='l',
+     ylim=c(min((ind_roff - ind_exp)), max((ind_roff))))
+lines(years, ind_exp, col='blue')
+lines(years, ind_stor, col='red')
+lines(years, cumsum(as.numeric(ind_stor)), type='l', col='orange')
+
+
+plot(years,
+     cumsum(as.numeric(ind_roff)), type='l',
+     ylim=c(min(ind_exp), max(cumsum(as.numeric(ind_roff)))),
+     ylab = "Cumulative Volume (km3/year)",
+     xlab = "Year")
+lines(years,
+      cumsum(as.numeric(ind_exp)),
+      col='blue')
