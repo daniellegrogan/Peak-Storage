@@ -174,7 +174,7 @@ gl.analysis = function(wbm.path,
   
   
 ### GCMs ###
-  
+gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers"
 gcm.list = c("CanESM2", 
              "CCSM4",
