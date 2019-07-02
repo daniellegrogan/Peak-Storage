@@ -28,27 +28,30 @@ sapply(file.sources, source)
 rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources)  # remove unnecesary variables
 
 #######################################################################################################################################
-### MAIN ###
 gl.analysis = function(wbm.path,
                        basin.shape,
                        basin.ID,
                        up.area,
                        ex.basins,
                        gl.path,
-                       gcm, 
+                       model, 
                        rcp, 
                        years,
                        out.path){
   
   # check if output directory exists.  If not, create it
-  if(!file.exists(out.path)){
-    dir.create(out.path)
+  f1 = file.path(strsplit(out.path, "/")[[1]][1], strsplit(out.path, "/")[[1]][2])
+  if(!file.exists(f1)){
+    dir.create(f1)
+    if(!file.exists(out.path)){
+      dir.create(out.path)
+    }
   }
   
   # Calculate glacier runoff by basin (km3/year): required input for analysis below
   # glacier runoff: output in m3
   glacier.runoff = glacier_runoff_subset(gl.path = gl.path,          # path to glacier model output
-                                         model   = gcm,              # If rcp != historical, also supply a GCM model name
+                                         model   = model,            # If rcp != historical, also supply a GCM model name
                                          rcp     = rcp,              # rcp = one of: "historical", "rcp45", "rcp85"
                                          st.yr   = min(years),       # start year to subset
                                          end.yr  = max(years),       # end year to subset
@@ -61,14 +64,14 @@ gl.analysis = function(wbm.path,
   
   # spatial aggregation of glacier runoff: km3 per basin
   glacier.runoff.basins = spatial_aggregation(raster.data = glacier.runoff.mm,
-                                              shapefile   = shape,
+                                              shapefile   = basin.shape,
                                               s           = 1, 
                                               cell.area   = 1,
                                               weight      = T, 
                                               poly.out    = F)
   colnames(glacier.runoff.basins) = years
-  rownames(glacier.runoff.basins) = shape$name
-  write.csv(glacier.runoff.basins, "results/Glacier_runoff_basins_km3Yr.csv")
+  rownames(glacier.runoff.basins) = basin.shape$name
+  write.csv(glacier.runoff.basins, file.path(out.path, "Glacier_runoff_basins_km3Yr.csv"))
   
   
   # 1. Total percolation of glacier runoff into groundwater system
@@ -164,7 +167,7 @@ gl.analysis = function(wbm.path,
                        up.area,
                        ex.basins,
                        gl.path,
-                       gcm, 
+                       model, 
                        rcp, 
                        years,
                        out.path = "results/historical")
@@ -188,13 +191,13 @@ gcm.list = c("CanESM2",
 years = seq(2000, 2005)
 lapply(gcm.list, 
        FUN = function(x) 
-       {gl.analysis(wbm.path = file.path(wbm.base, x, "historical"),
+       {gl.analysis(wbm.path = file.path(wbm.base, x, "historical/yearly"),
                     basin.shape,
                     basin.ID,
                     up.area,
                     ex.basins,
                     gl.path,
-                    gcm = x, 
+                    model = x, 
                     rcp = 'historical', 
                     years,
                     out.path = file.path("results", x, "historical"))}
@@ -212,7 +215,7 @@ lapply(gcm.list,
                     up.area,
                     ex.basins,
                     gl.path,
-                    gcm = x, 
+                    model = x, 
                     rcp = 'rcp45', 
                     years,
                     out.path = file.path("results", x, "rcp45"))}
@@ -227,7 +230,7 @@ lapply(gcm.list,
                     up.area,
                     ex.basins,
                     gl.path,
-                    gcm = x, 
+                    model = x, 
                     rcp = 'rcp85', 
                     years,
                     out.path = file.path("results", x, "rcp85"))}
@@ -238,9 +241,9 @@ lapply(gcm.list,
 ### WORK IN PROGRESS###
 
 # cumulative runoff vs cumulative export
-gl_runoff = read.csv("results/Glacier_runoff_basins_km3Yr.csv")
-gl_ocean  = read.csv("results/Glacier_to_ocean_km3Yr.csv")
-gl_et     = read.csv("results/ET_pg_basins_km3Yr.csv")
+gl_runoff = read.csv("results/CanESM2/historical/Glacier_runoff_basins_km3Yr.csv")
+gl_ocean  = read.csv("results/CanESM2/historical/Glacier_to_ocean_km3Yr.csv")
+gl_et     = read.csv("results/CanESM2/historical/ET_pg_basins_km3Yr.csv")
 
 # sum runoff and export over all basins
 gl_roff = colSums(gl_runoff[,2:ncol(gl_runoff)])
