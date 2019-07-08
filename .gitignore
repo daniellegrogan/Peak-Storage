@@ -1,0 +1,6 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+# ignore all netCDF files. They are too large.
+*.nc
