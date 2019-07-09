@@ -27,7 +27,6 @@ file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
 rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources)  # remove unnecesary variables
 
-# test commit
 #######################################################################################################################################
 ### MAIN ####
 #######################################################################################################################################
@@ -55,7 +54,8 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
 ### Call gl_analysis() function:
 
 ### Historical ERA-Interim ###
-wbm.path   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers/ERA_hist/yearly"
+#wbm.path   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers/ERA_hist/yearly"
+wbm.path   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/ERA_hist/yearly"
 gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 
 # years to analyze
@@ -67,8 +67,8 @@ gl_analysis(wbm.path,
             up.area,
             ex.basins,
             gl.path,
-            model, 
-            rcp, 
+            model = NA, 
+            rcp = 'historical', 
             years,
             out.path = "results/historical")
   
@@ -106,10 +106,7 @@ lapply(gcm.list,
 ### Future GCMs
 years = seq(2006, 2099)
 
-gcm.list = c("CanESM2", 
-             "CCSM4",
-             "CNRM-CM5",
-             "CSIRO-Mk3-6-0")
+gcm.list = c("CanESM2")
 # RCP 4.5
 lapply(gcm.list, 
        FUN = function(x) 
@@ -210,3 +207,28 @@ for(i in 1:length(ex.basins$name)){
                           plot.nm.cl)
 }
 
+### MAPS ###
+
+# coastline shapefile
+coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+coastline = spTransform(coastline, crs(basin.shape))
+
+# plot boundaries
+xl = c(59, 120)
+yl = c(9, 49)
+
+# Percolation of glacier water
+plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
+
+perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
+perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
+
+# for purposes of plotting, make 0 = NA (no color)
+perc_pg_mean[perc_pg_mean == 0] = NA
+perc_pg_mean = mask(perc_pg_mean, basin.shape)
+
+png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
+plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+plot(perc_pg_mean, add = T)
+plot(basin.shape,  add = T, lwd=1)
+dev.off()
