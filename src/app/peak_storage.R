@@ -1,7 +1,7 @@
 # Analysis steps for Peak Storage
 # Project: NASA HiMAT
 # Danielle S Grogan
-# last updated: 2019-07-01
+# last updated: 2019-07-09
 
 ### R Libraries
 library(RCurl)  # enables sourcing R code from github
@@ -208,6 +208,7 @@ for(i in 1:length(ex.basins$name)){
 }
 
 ### MAPS ###
+# NOTE: MAKE THIS MORE GENERAL
 
 # coastline shapefile
 coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
@@ -232,3 +233,5 @@ plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
 plot(perc_pg_mean, add = T)
 plot(basin.shape,  add = T, lwd=1)
 dev.off()
+
+# Map: irrigated areas, rice paddies, soil properties, rice percolation rates
