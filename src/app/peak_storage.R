@@ -1,7 +1,7 @@
 # Analysis steps for Peak Storage
 # Project: NASA HiMAT
 # Danielle S Grogan
-# last updated: 2019-07-09
+# last updated: 2019-07-10
 
 ### R Libraries
 library(RCurl)  # enables sourcing R code from github
@@ -75,7 +75,8 @@ gl_analysis(wbm.path,
   
 ### GCMs ###
 gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
-wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers"
+#wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers"
+wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
 gcm.list = c("CanESM2", 
              "CCSM4",
              "CNRM-CM5",
@@ -86,6 +87,8 @@ gcm.list = c("CanESM2",
              "IPSL-CM5A-LR",
              "MPI-ESM-LR",
              "NorESM1-M")
+
+gcm.list = c("CanESM2")
 
 ### Historical GCMs ###
 years = seq(2000, 2005)
@@ -104,6 +107,7 @@ lapply(gcm.list,
        )
 
 ### Future GCMs
+# NB - processing takes > 15 min per GCM
 years = seq(2006, 2099)
 
 gcm.list = c("CanESM2")
@@ -141,71 +145,14 @@ lapply(gcm.list,
 # Plots #
 ### WORK IN PROGRESS###
 
-res.dir  = "results/historical"  # directory from which to read results
-plot.dir = "figures/historical"  # directory to which to save plot
+#res.dir  = "results/historical"  # directory from which to read results
+#plot.dir = "figures/historical"  # directory to which to save plot
 
-gl_runoff = read.csv(file.path(res.dir,"/Glacier_runoff_basins_km3Yr.csv"))
-gl_storage= read.csv(file.path(res.dir, "Storage_basins_km3Yr.csv"))
-gl_ocean  = read.csv(file.path(res.dir,"/Glacier_to_ocean_km3Yr.csv"))
-gl_et     = read.csv(file.path(res.dir,"ET_pg_basins_km3Yr.csv"))
+res.dir = "results/CanESM2/rcp45"
+plot.dir = "figures/CanESM2/rcp45"
 
-### Plot time series of glacier runoff, export, and storage for SUM of all exorheic basins
-# sum runoff and export over exorheic basins
-gl_runoff.ex  = gl_runoff[which(gl_runoff[,1] %in% ex.basins$name),]
-gl_storage.ex = gl_storage[which(gl_storage[,1] %in% ex.basins$name),]
-gl_ocean.ex   = gl_ocean[which(gl_ocean[,1] %in% ex.basins$name),]
-gl_et.ex      = gl_et[which(gl_et[,1] %in% ex.basins$name),]
+glacier_RES_plots(res.dir, plot.dir)
 
-gl_roff = as.numeric(colSums(gl_runoff.ex[,2:ncol(gl_runoff.ex)]))
-gl_exp  = as.numeric(colSums(gl_ocean.ex[,2:ncol(gl_ocean.ex)]) + colSums(gl_et.ex[,2:ncol(gl_et.ex)]))
-gl_stor = as.numeric(colSums(gl_storage.ex[,2:ncol(gl_storage.ex)]))
-
-years = as.numeric(sub("X", "", c(colnames(gl_runoff)[2:ncol(gl_runoff)])))
-plot.nm = "Runoff_Exp_Stor_ExorheicAll_historical_TS.png"
-
-plot_glacier_TS(plot.dir,
-                gl_roff,
-                gl_exp,
-                gl_stor,
-                years,
-                plot.nm)
-
-### Plot cumulative glacier runoff, export, and storage for SUM of all exorheic basins
-plot.nm = "Runoff_Exp_Stor_ExorheicAll_historical_cumulative.png"
-plot_glacier_cumulative(plot.dir,
-                        gl_roff,
-                        gl_exp,
-                        gl_stor,
-                        years,
-                        plot.nm)
-
-### Plot time series of glacier runoff, export, and storage for EACH exorheic basin
-for(i in 1:length(ex.basins$name)){
-  gl_roff = as.numeric(gl_runoff.ex[which(gl_runoff.ex[,1] %in% ex.basins$name[i]),  2:ncol(gl_runoff.ex)])
-  gl_stor = as.numeric(gl_storage.ex[which(gl_storage.ex[,1] %in% ex.basins$name[i]),2:ncol(gl_storage.ex)])
-  
-  gl_oc = as.numeric(gl_ocean.ex[which(gl_ocean.ex[,1] %in% ex.basins$name[i]), 2:ncol(gl_ocean.ex)])
-  gl_et = as.numeric(gl_et.ex[which(gl_et.ex[,1] %in% ex.basins$name[i]),2:ncol(gl_et.ex)])
-  gl_exp = gl_oc + gl_et
-  
-  years = as.numeric(sub("X", "", c(colnames(gl_runoff.ex)[2:ncol(gl_runoff.ex)])))
-  
-  plot.nm.ts = paste("Runoff_Exp_Stor", ex.basins$name[i], "historical_TS.png", sep="_")
-  plot_glacier_TS(plot.dir,
-                  gl_roff,
-                  gl_exp,
-                  gl_stor,
-                  years,
-                  plot.nm.ts)
-  
-  plot.nm.cl = paste("Runoff_Exp_Stor", ex.basins$name[i], "historical_cumulative.png", sep="_")
-  plot_glacier_cumulative(plot.dir,
-                          gl_roff,
-                          gl_exp,
-                          gl_stor,
-                          years,
-                          plot.nm.cl)
-}
 
 ### MAPS ###
 # NOTE: MAKE THIS MORE GENERAL
@@ -233,5 +180,3 @@ plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
 plot(perc_pg_mean, add = T)
 plot(basin.shape,  add = T, lwd=1)
 dev.off()
-
-# Map: irrigated areas, rice paddies, soil properties, rice percolation rates
