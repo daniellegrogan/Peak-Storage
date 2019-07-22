@@ -83,12 +83,12 @@ gcm.list = c("CanESM2",
              "CSIRO-Mk3-6-0",
              "GFDL-CM3",
              "GFDL-ESM2M",
-             "GISS-E2-R",
+             #"GISS-E2-R",
              "IPSL-CM5A-LR",
              "MPI-ESM-LR",
              "NorESM1-M")
 
-gcm.list = c("CanESM2")
+#gcm.list = c("CanESM2")
 
 ### Historical GCMs ###
 years = seq(2000, 2005)
@@ -110,7 +110,6 @@ lapply(gcm.list,
 # NB - processing takes > 15 min per GCM
 years = seq(2006, 2099)
 
-gcm.list = c("CanESM2")
 # RCP 4.5
 lapply(gcm.list, 
        FUN = function(x) 
@@ -147,36 +146,36 @@ lapply(gcm.list,
 
 #res.dir  = "results/historical"  # directory from which to read results
 #plot.dir = "figures/historical"  # directory to which to save plot
-
-res.dir = "results/CanESM2/rcp45"
-plot.dir = "figures/CanESM2/rcp45"
-
-glacier_RES_plots(res.dir, plot.dir)
-
-
-### MAPS ###
-# NOTE: MAKE THIS MORE GENERAL
-
-# coastline shapefile
-coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
-coastline = spTransform(coastline, crs(basin.shape))
-
-# plot boundaries
-xl = c(59, 120)
-yl = c(9, 49)
-
-# Percolation of glacier water
-plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
-
-perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
-perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
-
-# for purposes of plotting, make 0 = NA (no color)
-perc_pg_mean[perc_pg_mean == 0] = NA
-perc_pg_mean = mask(perc_pg_mean, basin.shape)
-
-png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
-plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
-plot(perc_pg_mean, add = T)
-plot(basin.shape,  add = T, lwd=1)
-dev.off()
+# 
+# res.dir = "results/CanESM2/rcp45"
+# plot.dir = "figures/CanESM2/rcp45"
+# 
+# glacier_RES_plots(res.dir, plot.dir)
+# 
+# 
+# ### MAPS ###
+# # NOTE: MAKE THIS MORE GENERAL
+# 
+# # coastline shapefile
+# coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+# coastline = spTransform(coastline, crs(basin.shape))
+# 
+# # plot boundaries
+# xl = c(59, 120)
+# yl = c(9, 49)
+# 
+# # Percolation of glacier water
+# plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
+# 
+# perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
+# perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
+# 
+# # for purposes of plotting, make 0 = NA (no color)
+# perc_pg_mean[perc_pg_mean == 0] = NA
+# perc_pg_mean = mask(perc_pg_mean, basin.shape)
+# 
+# png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
+# plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+# plot(perc_pg_mean, add = T)
+# plot(basin.shape,  add = T, lwd=1)
+# dev.off()
