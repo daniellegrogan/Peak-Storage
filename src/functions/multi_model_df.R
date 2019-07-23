@@ -6,13 +6,14 @@
 # last updated: 2019-07-23
 
 multi_model_df = function(res.dir.base,   # results directory from which to read, one level up from GCM names
+                          gcm.list,       # list of gcm names, used to make directory path
                           file.nm,        # name of result csv file to read (e.g., "Glacier_runoff_basins_km3Yr.csv")
                           years,          # sequence of years. INCLUDE HISTORICAL AND FUTURE
                           rcp,            # one of: "rcp45", "rcp85".  NO HISTORICAL - this function will build historical + rcp time series
                           basin){         # name of basin, or "Ex" for sum of all exorheic basins
   
-  mmm.df = data.frame(matrix(nc = length(years)+1, nr = length(gcm.list)))
-  for(i in 1:nrow(runoff.df)){
+  mmm.df = data.frame(matrix(nc = length(years), nr = length(gcm.list)))
+  for(i in 1:length(gcm.list)){
     data.hist = read.csv(file.path(res.dir.base, gcm.list[i], "historical", file.nm))
     data.rcp  = read.csv(file.path(res.dir.base, gcm.list[i], rcp, file.nm))
     data.ts   = merge(data.hist, data.rcp)
@@ -24,7 +25,6 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
     }
   }
   
-  mmm.df = mmm.df[,2:ncol(mmm.df)]
   colnames(mmm.df) = years
   rownames(mmm.df) = gcm.list
   return(mmm.df)
