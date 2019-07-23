@@ -29,7 +29,8 @@ MMM_RES_plot =  function(gl_runoff,   # glacier runoff time series (km3/yr), one
   exp_lty  = 4
   stor_lty = 2
   
-  png(file.path(plotdir, plot.nm))
+  png(file.path(plot.dir, plot.nm),
+      width = 800, height=600, res=100)
   for(i in 1:nrow(gl_runoff)){
     if(i == 1){
       par(mar=c(7, 5, 2, 5), xpd = TRUE)
@@ -80,7 +81,7 @@ MMM_RES_plot =  function(gl_runoff,   # glacier runoff time series (km3/yr), one
     if(i == 1){
       plot(years, 
            storage_c[i,],
-           ylim=c(0, max(storage_c)),
+           ylim=c(0, ceiling(max(storage_c))),
            type='l',
            lwd=0.8,
            col = adjustcolor(stor_col, alpha=0.5),

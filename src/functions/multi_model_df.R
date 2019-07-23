@@ -21,7 +21,7 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
     if(basin == "Ex"){
       mmm.df[i,] = colSums(data.ts[,2:ncol(data.ts)])
     }else{
-      mmm.df[i,] = data.ts[which(data.ts[,1] == basin),]
+      mmm.df[i,] = data.ts[which(data.ts[,1] == basin), 2:ncol(data.ts)]
     }
   }
   

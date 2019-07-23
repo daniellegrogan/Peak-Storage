@@ -8,7 +8,6 @@
 # Danielle S Grogan
 # last updated: 2019-07-23
 
-plot.dir = file.path("figures", paste(rcp, "MMM", sep="_"))
 MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which to read, one level up from GCM names
                          gcm.list,       # list names of GCMs, used to generate file paths
                          years,          # vector of years.  INCLUDE HISTORICAL AND FUTURE YEARS (e.g., 2000 - 2099)
@@ -68,7 +67,7 @@ MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which t
   
   ### Each exorheic basin
   for(b in 1:length(ex.basin.names)){
-    basin = ex.basin.names[i]
+    basin = as.character(ex.basin.names[b])
     gl_runoff = multi_model_df(res.dir.base, 
                                gcm.list,
                                file.nm = "Glacier_runoff_basins_km3Yr.csv",
