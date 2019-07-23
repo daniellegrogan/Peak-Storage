@@ -99,7 +99,7 @@ MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which t
     # Calculate cumulative storage
     storage_c = t(apply(gl_storage, c(1), cumsum))
     
-    plot.nm = paste("Runoff_Exp_Stor_", basin, "_" rcp, ".png", sep="")
+    plot.nm = paste("Runoff_Exp_Stor_", basin, "_", rcp, ".png", sep="")
     MMM_RES_plot(gl_runoff,   # glacier runoff time series (km3/yr), one model per row
                  storage_c,   # cumulative glacier storage time series (km3), one model per row
                  gl_exp,      # glacier export time series (km3/yr), one model per row
