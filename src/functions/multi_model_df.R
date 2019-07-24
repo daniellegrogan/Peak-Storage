@@ -10,8 +10,20 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
                           file.nm,        # name of result csv file to read (e.g., "Glacier_runoff_basins_km3Yr.csv")
                           years,          # sequence of years. INCLUDE HISTORICAL AND FUTURE
                           rcp,            # one of: "rcp45", "rcp85".  NO HISTORICAL - this function will build historical + rcp time series
-                          basin){         # name of basin, or "Ex" for sum of all exorheic basins
+                          basin,          # name of basin, or "Ex" for sum of all exorheic basins
+                          out.dir         # directory to write output
+                          ){       
+
+  # create out.dir if it does not exist
+  f1 = file.path(strsplit(out.dir, "/")[[1]][1], strsplit(out.dir, "/")[[1]][2])
+  if(!file.exists(f1)){
+    dir.create(f1)
+  }
+  if(!file.exists(out.dir)){
+    dir.create(out.dir)
+  }
   
+  # make data frame with all GCM simulations for basin
   mmm.df = data.frame(matrix(nc = length(years), nr = length(gcm.list)))
   for(i in 1:length(gcm.list)){
     data.hist = read.csv(file.path(res.dir.base, gcm.list[i], "historical", file.nm))
@@ -25,7 +37,16 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
     }
   }
   
+  # calculate mean
+  multi.model.mean = colMeans(mmm.df)
+  mmm.df = rbind(mmm.df, multi.model.mean)
+  
   colnames(mmm.df) = years
-  rownames(mmm.df) = gcm.list
+  rownames(mmm.df) = c(gcm.list, "multi_model_mean")
+  
+  # write to file
+  write.csv(mmm.df, file.path(out.dir, file.nm))
+  
+  # return data frame
   return(mmm.df)
 }
