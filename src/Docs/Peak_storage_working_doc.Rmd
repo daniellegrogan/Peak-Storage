@@ -1,0 +1,40 @@
+---
+title: "Peak Storage Working Doc"
+author: "Danielle S Grogan"
+date: "7/24/2019"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Intro
+Glacial melt water in High Mountain Asia (HMA) currently supplies water to ~800 million people, and provides protection against episodic droughts (Pritchard, 2019) in one of the world’s most water stressed regions (Vorosmarty et al., 2000; Wada et al., 2011).  Climate-induced glacier mass loss is projected to reduce and even eliminate many of the region’s glaciers by the end of the 21st century (Immerzeel et al., 2010; Bliss et al., 2014; Huss and Hock, 2018; Rounce et al., submitted), causing a decline and eventual cease in glacier runoff. The time of maximum glacial melt is termed "Peak Water", and there is growing concern that after this point reductions in glacial meltwater will reduce runoff, with potentially substantial impacts to basins that rely on this water during the growing season (e.g, Biemans et al., 2019). HMA has another vast and threatened water reserve: groundwater. Drastic decreases in HMA aquifer storage have been observed over the past two decades (Rodell et al 2009; Russo, Devineni, and Lall, 2015), attributed at least in part to anthropogenic groundwater withdrawals for irrigation (Aeschbach-Hertig and Gleeson, 2012; Döll et al., 2014; Deng and Chen, 2017). While it is clear that declines in both these water resources are potential threats to HMA water security, no studies have recognized the potential for glacier melt to impact groundwater storage through surface water-groundwater interactions.  
+
+Groundwater to surface water flows have been quantified for some Nepalese Himalayan rivers (Andermann et al. 2012), and the few studies that consider glacier runoff in surface water-groundwater interactions in Asia find cryosphere melt water to be a significant source of recharge (Meng et al. 2015; Zeng et al. 2015; Wilson et al. 2016), though to our knowledge no studies have assessed the role of irrigation on this recharge. The combination of high-permeability alluvial aquifers (Gleeson et al. 2014; Bhanja et al. 2019) with overlying irrigation systems including expansive seasonally-flooded rice paddies (Xiao et al. 2006, 2006) allow these irrigation systems to connect surface water and groundwater systems (Fig. 5, and Grogan et al. 2017). Glacier runoff impacts on aquifer recharge have been studied more in Swiss (e.g., Malard et al. 2016), Icelandic (e.g., Dochartaigh et al. 2019) South American (e.g., Baraer et al. 2014; Gordon et al. 2015), and North American (e.g., Langston et al. 2013) glaciated basins, but compared to HMA basins, they have significantly higher irrigation efficiencies (FAO, 2012) and often much less distance between the glacier terminus and the ocean. Most such analyses rely on stable isotope tracers to identify groundwater signals in surface waters (e.g., Wilson et al. 2016) and are therefore limited in spatial and temporal scale.
+
+Here, we show that glacial meltwater is not exported directly to oceans as runoff; rather, glacial melt water is used for agriculture and recharges groundwater by way of percolation of excess irrigation water.  This means that the drought-protection benefit of glacial melt water is transferred to the groundwater pool, extending the time frame of the benefit. To understand how this water benefit transfer will impact downstream populations, we need to know not only the timing and volume of glacier Peak Water, but also the volume and timing of “Peak Storage”, defined here as the maximum volume of glacial melt water stored in downstream aquifers.
+
+
+## Methods and Data
+8 GCMs drive two models: a glacier model (PyGEM) and a hydrology model (WBM)
+2 RCPs: RCP 4.5 (low emissions) and RCP 8.5 (high emissions)
+
+
+## Results
+
+## Conclusions
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

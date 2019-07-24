@@ -20,7 +20,7 @@ multi_model_raster = function(res.dir.base,   # results directory from which to 
   brk.mmm = stackApply(brk, 
                        indices = ids, 
                        fun = mean,
-                       filename = file.path(out.dir, file.nm),
+                       filename = file.path(out.dir, sub(".nc", paste("_", rcp, ".nc", sep=""), c(file.nm))),
                        overwrite = T)
   
 }

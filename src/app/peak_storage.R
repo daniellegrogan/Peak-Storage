@@ -26,10 +26,14 @@ eval(parse(text=mouth_ts.script))
 wbm_model_mean.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/wbm_model_mean.R", ssl.verifypeer=F)
 eval(parse(text=wbm_model_mean.script))
 
+# raster_time_ave()
+raster_time_ave.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/raster_time_ave.R", ssl.verifypeer=F)
+eval(parse(text=raster_time_ave.script))
+
 ### Source functions from within this project:
 file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
-rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources, wbm_model_mean.script)  # remove unnecesary variables
+rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources, wbm_model_mean.script, raster_time_ave.script)  # remove unnecesary variables
 
 #######################################################################################################################################
 ### MAIN ####
@@ -284,6 +288,16 @@ wbm_model_mean(file.path.list,
                out.dir = "results/multi_model_mean",         
                out.nm  = "IrrGrwt_mm_pg_rcp85.nc",        
                ret = 0) 
+
+################################################################################################################################
+
+### Climatologies
+brk.data = raster::brick("results/multi_model_mean/IrrGrwt_mm_pg_historical.nc")
+time.step = 6
+s = 0
+out.dir = "results/multi_model_mean/climatology"
+out.nm = "IrrGrwt_mm_pg_historical_clim.nc"
+
 ################################################################################################################################
 # Plots #
 ### WORK IN PROGRESS###
