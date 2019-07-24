@@ -32,8 +32,10 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
     
     if(basin == "Ex"){
       mmm.df[i,] = colSums(data.ts[,2:ncol(data.ts)])
+      basin.nm = "ExorheicAll"
     }else{
       mmm.df[i,] = data.ts[which(data.ts[,1] == basin), 2:ncol(data.ts)]
+      basin.nm = basin
     }
   }
   
@@ -45,7 +47,7 @@ multi_model_df = function(res.dir.base,   # results directory from which to read
   rownames(mmm.df) = c(gcm.list, "multi_model_mean")
   
   # write to file
-  write.csv(mmm.df, file.path(out.dir, file.nm))
+  write.csv(mmm.df, file.path(out.dir, sub(".csv", paste("_", basin.nm, ".csv", sep=""), c(file.nm))))
   
   # return data frame
   return(mmm.df)
