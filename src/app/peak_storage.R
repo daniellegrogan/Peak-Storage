@@ -88,6 +88,16 @@ gcm.list = c("CanESM2",
              "MPI-ESM-LR",
              "NorESM1-M")
 
+gcm.list = c("CCSM4",
+             "CNRM-CM5",
+             "CSIRO-Mk3-6-0",
+             "GFDL-CM3",
+             "GFDL-ESM2M",
+             #"GISS-E2-R",
+             "IPSL-CM5A-LR",
+             "MPI-ESM-LR",
+             "NorESM1-M")
+
 ### Historical GCMs ###
 years = seq(2000, 2005)
 lapply(gcm.list, 
@@ -142,6 +152,21 @@ lapply(gcm.list,
 # Plots #
 ### WORK IN PROGRESS###
 
+### MMM plots
+rcp = 'rcp45'
+plot.dir = file.path("figures", paste(rcp, "MMM", sep="_"))
+
+# make RES plots for sum of exorheic basins, and each basin individually
+# RES := Runoff, Export, Storage
+MMM_RES_plot_wrapper(res.dir.base = 'results',         # results directory from which to read, one level up from GCM names
+                     gcm.list,                         # list names of GCMs, used to generate file paths
+                     years = seq(2000, 2099),          # vector of years.  INCLUDE HISTORICAL AND FUTURE YEARS (e.g., 2000 - 2099)
+                     rcp = 'rcp45',                    # one of: "rcp45", "rcp85".  NO HISTORICAL - this function will build historical + rcp time series
+                     ex.basin.names = ex.basins$names, # exorheic basin names
+                     plot.dir)                         # plot directory to which to write plots
+  
+
+#### individual GCMs
 res.dir  = "results/historical"  # directory from which to read results
 plot.dir = "figures/historical"  # directory to which to save plot
 
@@ -164,6 +189,8 @@ for(i in gcm.list){
   plot.dir = file.path("figures", i, "rcp45")
   glacier_RES_plots(res.dir, plot.dir)
 }
+
+
 
 
 

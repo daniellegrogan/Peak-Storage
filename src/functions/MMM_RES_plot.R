@@ -15,10 +15,10 @@ MMM_RES_plot =  function(gl_runoff,   # glacier runoff time series (km3/yr), one
                          plot.dir,    # directory to write the plot
                          plot.nm){    # name of plot
   
-  # Calculate multi-model means
-  gl_runoff.mmm = colMeans(gl_runoff)
-  gl_storage.mmm = colMeans(storage_c)  # cumulative
-  gl_exp.mmm = colMeans(gl_exp)
+  # identify multi-model means
+  gl_runoff.mmm  = gl_runoff['multi_model_mean',]
+  gl_storage.mmm = storage_c['multi_model_mean',]  # cumulative
+  gl_exp.mmm     = gl_exp['multi_model_mean',]
   
   ### plotting parameters
   roff_col = 'black'

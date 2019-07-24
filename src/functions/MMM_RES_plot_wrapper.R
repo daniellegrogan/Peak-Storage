@@ -8,12 +8,11 @@
 # Danielle S Grogan
 # last updated: 2019-07-23
 
-MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which to read, one level up from GCM names
-                         gcm.list,       # list names of GCMs, used to generate file paths
-                         years,          # vector of years.  INCLUDE HISTORICAL AND FUTURE YEARS (e.g., 2000 - 2099)
-                         rcp,            # one of: "rcp45", "rcp85".  NO HISTORICAL - this function will build historical + rcp time series
-                         ex.basin.names, # exorheic basin names
-                         plot.dir){      # plot directory to which to write plots
+MMM_RES_plot_wrapper = function(res.dir,        # results directory from which to read multi-model data frames
+                                ex.basin.names, # exorheic basin names
+                                plot.dir,       # plot directory to which to write plots
+                                out.dir        
+                                ){      
   
   # create plot.dir if it does not exist
   f1 = file.path(strsplit(plot.dir, "/")[[1]][1], strsplit(plot.dir, "/")[[1]][2])
@@ -24,34 +23,13 @@ MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which t
     dir.create(plot.dir)
   }
   
-  # make multi-model data frames for vars of interest
-  
-  # Sum of all exorheic basins
-  basin = "Ex"
-  gl_runoff = multi_model_df(res.dir.base, 
-                             gcm.list,
-                             file.nm = "Glacier_runoff_basins_km3Yr.csv",
-                             years,          
-                             rcp,           
-                             basin)
-  gl_storage = multi_model_df(res.dir.base, 
-                              gcm.list,
-                              file.nm = "Storage_basins_km3Yr.csv",
-                              years,          
-                              rcp,           
-                              basin)
-  gl_ocean = multi_model_df(res.dir.base, 
-                            gcm.list,
-                            file.nm = "Glacier_to_ocean_km3Yr.csv",
-                            years,          
-                            rcp,           
-                            basin)
-  gl_et = multi_model_df(res.dir.base, 
-                         gcm.list,
-                         file.nm = "ET_pg_basins_km3Yr.csv",
-                         years,          
-                         rcp,           
-                         basin)
+  # All Exorheic basins
+  # load multi-model data frames
+  gl_runoff  = read.csv(file.path(res.dir, "Glacier_runoff_basins_km3Yr_ExorheicAll.csv"), header=T, row.names = 1)
+  gl_et      = read.csv(file.path(res.dir, "ET_pg_basins_km3Yr_ExorheicAll.csv"),          header=T, row.names = 1)
+  gl_ocean   = read.csv(file.path(res.dir, "Glacier_to_ocean_km3Yr_ExorheicAll.csv"),      header=T, row.names = 1)
+  gl_storage = read.csv(file.path(res.dir, "Storage_basins_km3Yr_ExorheicAll.csv"),        header=T, row.names = 1)
+
   # Export = gl_ocean + gl_et
   gl_exp = gl_ocean + gl_et
   
@@ -68,30 +46,7 @@ MMM_RES_plot_wrapper = function(res.dir.base,   # results directory from which t
   ### Each exorheic basin
   for(b in 1:length(ex.basin.names)){
     basin = as.character(ex.basin.names[b])
-    gl_runoff = multi_model_df(res.dir.base, 
-                               gcm.list,
-                               file.nm = "Glacier_runoff_basins_km3Yr.csv",
-                               years,          
-                               rcp,           
-                               basin)
-    gl_storage = multi_model_df(res.dir.base, 
-                                gcm.list,
-                                file.nm = "Storage_basins_km3Yr.csv",
-                                years,          
-                                rcp,           
-                                basin)
-    gl_ocean = multi_model_df(res.dir.base, 
-                              gcm.list,
-                              file.nm = "Glacier_to_ocean_km3Yr.csv",
-                              years,          
-                              rcp,           
-                              basin)
-    gl_et = multi_model_df(res.dir.base, 
-                           gcm.list,
-                           file.nm = "ET_pg_basins_km3Yr.csv",
-                           years,          
-                           rcp,           
-                           basin)
+    
     # Export = gl_ocean + gl_et
     gl_exp = gl_ocean + gl_et
     
