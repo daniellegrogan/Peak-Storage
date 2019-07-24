@@ -148,6 +148,74 @@ lapply(gcm.list,
                     out.path = file.path("results", x, "rcp85"))}
 )
 
+### Calculate multi-model means
+
+out.dir = "results/multi_model_mean"
+
+# 1. Time series data
+# Sum of all exorheic basins
+basin = "Ex"
+gl_runoff = multi_model_df(res.dir.base, 
+                           gcm.list,
+                           file.nm = "Glacier_runoff_basins_km3Yr.csv",
+                           years,          
+                           rcp,           
+                           basin,
+                           out.dir)
+gl_storage = multi_model_df(res.dir.base, 
+                            gcm.list,
+                            file.nm = "Storage_basins_km3Yr.csv",
+                            years,          
+                            rcp,           
+                            basin,
+                            out.dir)
+gl_ocean = multi_model_df(res.dir.base, 
+                          gcm.list,
+                          file.nm = "Glacier_to_ocean_km3Yr.csv",
+                          years,          
+                          rcp,           
+                          basin,
+                          out.dir)
+gl_et = multi_model_df(res.dir.base, 
+                       gcm.list,
+                       file.nm = "ET_pg_basins_km3Yr.csv",
+                       years,          
+                       rcp,           
+                       basin,
+                       out.dir)
+
+# Each exorheic basin
+for(b in 1:length(ex.basin.names)){
+  basin = as.character(ex.basin.names[b])
+  gl_runoff = multi_model_df(res.dir.base, 
+                             gcm.list,
+                             file.nm = "Glacier_runoff_basins_km3Yr.csv",
+                             years,          
+                             rcp,           
+                             basin,
+                             out.dir)
+  gl_storage = multi_model_df(res.dir.base, 
+                              gcm.list,
+                              file.nm = "Storage_basins_km3Yr.csv",
+                              years,          
+                              rcp,           
+                              basin,
+                              out.dir)
+  gl_ocean = multi_model_df(res.dir.base, 
+                            gcm.list,
+                            file.nm = "Glacier_to_ocean_km3Yr.csv",
+                            years,          
+                            rcp,           
+                            basin,
+                            out.dir)
+  gl_et = multi_model_df(res.dir.base, 
+                         gcm.list,
+                         file.nm = "ET_pg_basins_km3Yr.csv",
+                         years,          
+                         rcp,           
+                         basin,
+                         out.dir)
+}
 ################################################################################################################################
 # Plots #
 ### WORK IN PROGRESS###
@@ -158,19 +226,19 @@ plot.dir = file.path("figures", paste(rcp, "MMM", sep="_"))
 
 # make RES plots for sum of exorheic basins, and each basin individually
 # RES := Runoff, Export, Storage
-MMM_RES_plot_wrapper(res.dir.base = 'results',         # results directory from which to read, one level up from GCM names
-                     gcm.list,                         # list names of GCMs, used to generate file paths
-                     years = seq(2000, 2099),          # vector of years.  INCLUDE HISTORICAL AND FUTURE YEARS (e.g., 2000 - 2099)
-                     rcp = 'rcp45',                    # one of: "rcp45", "rcp85".  NO HISTORICAL - this function will build historical + rcp time series
-                     ex.basin.names = ex.basins$names, # exorheic basin names
-                     plot.dir)                         # plot directory to which to write plots
+MMM_RES_plot_wrapper(res.dir        = 'results/multi_model_mean/',         # results directory from which to read
+                     ex.basin.names = ex.basins$names,                     # exorheic basin names
+                     plot.dir       = plot.dir)                            # plot directory to which to write plots
   
+
+
+
 
 #### individual GCMs
 res.dir  = "results/historical"  # directory from which to read results
 plot.dir = "figures/historical"  # directory to which to save plot
 
-gcm.list = c("CanESM2", 
+gcm.list = c("CanESM2",
              "CCSM4",
              "CNRM-CM5",
              "CSIRO-Mk3-6-0",

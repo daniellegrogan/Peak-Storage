@@ -10,8 +10,7 @@
 
 MMM_RES_plot_wrapper = function(res.dir,        # results directory from which to read multi-model data frames
                                 ex.basin.names, # exorheic basin names
-                                plot.dir,       # plot directory to which to write plots
-                                out.dir        
+                                plot.dir       # plot directory to which to write plots
                                 ){      
   
   # create plot.dir if it does not exist
