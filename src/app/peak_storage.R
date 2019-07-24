@@ -22,10 +22,14 @@ eval(parse(text=spatial_aggregation.script))
 mouth_ts.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/mouth_ts.R", ssl.verifypeer=F)
 eval(parse(text=mouth_ts.script))
 
+# wbm_model_mean()
+wbm_model_mean.script = getURL("https://raw.githubusercontent.com/daniellegrogan/WBMr/master/wbm_model_mean.R", ssl.verifypeer=F)
+eval(parse(text=wbm_model_mean.script))
+
 ### Source functions from within this project:
 file.sources = list.files("src/functions", full.names = T)
 sapply(file.sources, source)
-rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources)  # remove unnecesary variables
+rm(wbm_load.script, spatial_aggregation.script, mouth_ts.script, file.sources, wbm_model_mean.script)  # remove unnecesary variables
 
 #######################################################################################################################################
 ### MAIN ####
@@ -88,16 +92,6 @@ gcm.list = c("CanESM2",
              "MPI-ESM-LR",
              "NorESM1-M")
 
-gcm.list = c("CCSM4",
-             "CNRM-CM5",
-             "CSIRO-Mk3-6-0",
-             "GFDL-CM3",
-             "GFDL-ESM2M",
-             #"GISS-E2-R",
-             "IPSL-CM5A-LR",
-             "MPI-ESM-LR",
-             "NorESM1-M")
-
 ### Historical GCMs ###
 years = seq(2000, 2005)
 lapply(gcm.list, 
@@ -148,11 +142,11 @@ lapply(gcm.list,
                     out.path = file.path("results", x, "rcp85"))}
 )
 
+################################################################################################################################
 ### Calculate multi-model means
-
 out.dir = "results/multi_model_mean"
 
-# 1. Time series data
+## Time series data
 # Sum of all exorheic basins
 basin = "Ex"
 gl_runoff = multi_model_df(res.dir.base, 
@@ -216,6 +210,80 @@ for(b in 1:length(ex.basin.names)){
                          basin,
                          out.dir)
 }
+
+## Raster data
+res.dir.base = "results"
+file.names = c("ET_pg_mmYr.nc", 
+               "Glacier_runoff_mmYr.nc",
+               "IrrGWpg_percent_of_IrrGross.nc",
+               "IrrGwpg_percent_of_IrrGW.nc",
+               "Perc_pg_mmYr.nc")
+
+# Historical GCMs
+rcp = 'historical'
+lapply(file.names, 
+       fun = function(x) multi_model_raster(res.dir.base, 
+                                            gcm.list,     
+                                            file.nm = x,       
+                                            rcp,            
+                                            out.dir)
+       )
+
+# RCP 4.5
+rcp = 'rcp45'
+lapply(file.names, 
+       fun = function(x) multi_model_raster(res.dir.base, 
+                                            gcm.list,     
+                                            file.nm = x,       
+                                            rcp,            
+                                            out.dir)
+)
+
+# RCP 8.5
+rcp = 'rcp85'
+lapply(file.names, 
+       fun = function(x) multi_model_raster(res.dir.base, 
+                                            gcm.list,     
+                                            file.nm = x,       
+                                            rcp,            
+                                            out.dir)
+)
+
+
+### Multi-model mean from raw WBM results: IrrGrwt_mm_pg (average mm/year)
+
+wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
+varname    = "IrrGrwt_mm_pg"
+
+# Historical GCMs
+rcp        = 'historical'
+file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
+
+wbm_model_mean(file.path.list, 
+               yrs     = NA,          
+               out.dir = "results/multi_model_mean",         
+               out.nm  = "IrrGrwt_mm_pg_historical.nc",        
+               ret = 0)   
+
+# RCP 4.5
+rcp = 'rcp45'
+file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
+
+wbm_model_mean(file.path.list, 
+               yrs     = NA,          
+               out.dir = "results/multi_model_mean",         
+               out.nm  = "IrrGrwt_mm_pg_rcp45.nc",        
+               ret = 0) 
+  
+# RCP 8.5
+rcp = 'rcp85'
+file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
+
+wbm_model_mean(file.path.list, 
+               yrs     = NA,          
+               out.dir = "results/multi_model_mean",         
+               out.nm  = "IrrGrwt_mm_pg_rcp85.nc",        
+               ret = 0) 
 ################################################################################################################################
 # Plots #
 ### WORK IN PROGRESS###
