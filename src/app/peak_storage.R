@@ -93,8 +93,8 @@ gcm.list = c("CanESM2",
              "GFDL-ESM2M",
              #"GISS-E2-R",
              "IPSL-CM5A-LR",
-             "MPI-ESM-LR",
-             "NorESM1-M")
+             "MPI-ESM-LR")
+             #"NorESM1-M"
 
 ### Historical GCMs ###
 years = seq(2000, 2005)
@@ -132,19 +132,19 @@ lapply(gcm.list,
 )
 
 # RCP 8.5
-lapply(gcm.list, 
-       FUN = function(x) 
-       {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
-                    basin.shape,
-                    basin.ID,
-                    up.area,
-                    ex.basins,
-                    gl.path,
-                    model = x, 
-                    rcp = 'rcp85', 
-                    years,
-                    out.path = file.path("results", x, "rcp85"))}
-)
+# lapply(gcm.list, 
+#        FUN = function(x) 
+#        {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
+#                     basin.shape,
+#                     basin.ID,
+#                     up.area,
+#                     ex.basins,
+#                     gl.path,
+#                     model = x, 
+#                     rcp = 'rcp85', 
+#                     years,
+#                     out.path = file.path("results", x, "rcp85"))}
+# )
 
 ################################################################################################################################
 ### Calculate multi-model means
@@ -153,6 +153,7 @@ out.dir = "results/multi_model_mean"
 ## Time series data
 # Sum of all exorheic basins
 basin = "Ex"
+rcp = "rcp45"
 gl_runoff = multi_model_df(res.dir.base, 
                            gcm.list,
                            file.nm = "Glacier_runoff_basins_km3Yr.csv",
@@ -244,14 +245,14 @@ lapply(file.names,
 )
 
 # RCP 8.5
-rcp = 'rcp85'
-lapply(file.names, 
-       fun = function(x) multi_model_raster(res.dir.base, 
-                                            gcm.list,     
-                                            file.nm = x,       
-                                            rcp,            
-                                            out.dir)
-)
+# rcp = 'rcp85'
+# lapply(file.names, 
+#        fun = function(x) multi_model_raster(res.dir.base, 
+#                                             gcm.list,     
+#                                             file.nm = x,       
+#                                             rcp,            
+#                                             out.dir)
+# )
 
 
 ### Multi-model mean from raw WBM results: IrrGrwt_mm_pg (average mm/year)
@@ -280,23 +281,23 @@ wbm_model_mean(file.path.list,
                ret = 0) 
   
 # RCP 8.5
-rcp = 'rcp85'
-file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
-
-wbm_model_mean(file.path.list, 
-               yrs     = NA,          
-               out.dir = "results/multi_model_mean",         
-               out.nm  = "IrrGrwt_mm_pg_rcp85.nc",        
-               ret = 0) 
-
+# rcp = 'rcp85'
+# file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
+# 
+# wbm_model_mean(file.path.list, 
+#                yrs     = NA,          
+#                out.dir = "results/multi_model_mean",         
+#                out.nm  = "IrrGrwt_mm_pg_rcp85.nc",        
+#                ret = 0) 
+# 
 ################################################################################################################################
 
 ### Climatologies
-brk.data = raster::brick("results/multi_model_mean/IrrGrwt_mm_pg_historical.nc")
-time.step = 6
-s = 0
-out.dir = "results/multi_model_mean/climatology"
-out.nm = "IrrGrwt_mm_pg_historical_clim.nc"
+# brk.data = raster::brick("results/multi_model_mean/IrrGrwt_mm_pg_historical.nc")
+# time.step = 6
+# s = 0
+# out.dir = "results/multi_model_mean/climatology"
+# out.nm = "IrrGrwt_mm_pg_historical_clim.nc"
 
 ################################################################################################################################
 # Plots #
@@ -317,56 +318,56 @@ MMM_RES_plot_wrapper(res.dir        = 'results/multi_model_mean/',         # res
 
 
 #### individual GCMs
-res.dir  = "results/historical"  # directory from which to read results
-plot.dir = "figures/historical"  # directory to which to save plot
-
-gcm.list = c("CanESM2",
-             "CCSM4",
-             "CNRM-CM5",
-             "CSIRO-Mk3-6-0",
-             "GFDL-CM3",
-             "GFDL-ESM2M",
-             #"GISS-E2-R",
-             "IPSL-CM5A-LR",
-             "MPI-ESM-LR",
-             "NorESM1-M")
-
-res.dir = "results/CanESM2/rcp45"
-plot.dir = "figures/CanESM2/rcp45"
-
-for(i in gcm.list){
-  res.dir = file.path("results", i, "rcp45")
-  plot.dir = file.path("figures", i, "rcp45")
-  glacier_RES_plots(res.dir, plot.dir)
-}
-
-
-
-
-
-### MAPS ###
-# NOTE: MAKE THIS MORE GENERAL
-
-# coastline shapefile
-coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
-coastline = spTransform(coastline, crs(basin.shape))
-
-# plot boundaries
-xl = c(59, 120)
-yl = c(9, 49)
-
-# Percolation of glacier water
-plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
-
-perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
-perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
-
-# for purposes of plotting, make 0 = NA (no color)
-perc_pg_mean[perc_pg_mean == 0] = NA
-perc_pg_mean = mask(perc_pg_mean, basin.shape)
-
-png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
-plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
-plot(perc_pg_mean, add = T)
-plot(basin.shape,  add = T, lwd=1)
-dev.off()
+# res.dir  = "results/historical"  # directory from which to read results
+# plot.dir = "figures/historical"  # directory to which to save plot
+# 
+# gcm.list = c("CanESM2",
+#              "CCSM4",
+#              "CNRM-CM5",
+#              "CSIRO-Mk3-6-0",
+#              "GFDL-CM3",
+#              "GFDL-ESM2M",
+#              #"GISS-E2-R",
+#              "IPSL-CM5A-LR",
+#              "MPI-ESM-LR",
+#              "NorESM1-M")
+# 
+# res.dir = "results/CanESM2/rcp45"
+# plot.dir = "figures/CanESM2/rcp45"
+# 
+# for(i in gcm.list){
+#   res.dir = file.path("results", i, "rcp45")
+#   plot.dir = file.path("figures", i, "rcp45")
+#   glacier_RES_plots(res.dir, plot.dir)
+# }
+# 
+# 
+# 
+# 
+# 
+# ### MAPS ###
+# # NOTE: MAKE THIS MORE GENERAL
+# 
+# # coastline shapefile
+# coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+# coastline = spTransform(coastline, crs(basin.shape))
+# 
+# # plot boundaries
+# xl = c(59, 120)
+# yl = c(9, 49)
+# 
+# # Percolation of glacier water
+# plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
+# 
+# perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
+# perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
+# 
+# # for purposes of plotting, make 0 = NA (no color)
+# perc_pg_mean[perc_pg_mean == 0] = NA
+# perc_pg_mean = mask(perc_pg_mean, basin.shape)
+# 
+# png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
+# plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+# plot(perc_pg_mean, add = T)
+# plot(basin.shape,  add = T, lwd=1)
+# dev.off()
