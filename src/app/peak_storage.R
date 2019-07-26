@@ -149,11 +149,13 @@ lapply(gcm.list,
 ################################################################################################################################
 ### Calculate multi-model means
 out.dir = "results/multi_model_mean"
+res.dir.base = "results/"
 
 ## Time series data
 # Sum of all exorheic basins
 basin = "Ex"
 rcp = "rcp45"
+years = seq(2000, 2099)
 gl_runoff = multi_model_df(res.dir.base, 
                            gcm.list,
                            file.nm = "Glacier_runoff_basins_km3Yr.csv",
@@ -184,6 +186,7 @@ gl_et = multi_model_df(res.dir.base,
                        out.dir)
 
 # Each exorheic basin
+ex.basin.names = ex.basins$name
 for(b in 1:length(ex.basin.names)){
   basin = as.character(ex.basin.names[b])
   gl_runoff = multi_model_df(res.dir.base, 
@@ -348,26 +351,35 @@ MMM_RES_plot_wrapper(res.dir        = 'results/multi_model_mean/',         # res
 # ### MAPS ###
 # # NOTE: MAKE THIS MORE GENERAL
 # 
-# # coastline shapefile
-# coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
-# coastline = spTransform(coastline, crs(basin.shape))
+# coastline shapefile
+coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+coastline = spTransform(coastline, crs(basin.shape))
+
+# plot boundaries
+xl = c(59, 120)
+yl = c(9, 49)
 # 
-# # plot boundaries
-# xl = c(59, 120)
-# yl = c(9, 49)
-# 
-# # Percolation of glacier water
-# plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
-# 
-# perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
-# perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
-# 
-# # for purposes of plotting, make 0 = NA (no color)
-# perc_pg_mean[perc_pg_mean == 0] = NA
-# perc_pg_mean = mask(perc_pg_mean, basin.shape)
-# 
-# png(file.path(plot.dir, plot.nm), res=100, width = 800, height = 600)
-# plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
-# plot(perc_pg_mean, add = T)
-# plot(basin.shape,  add = T, lwd=1)
-# dev.off()
+# Percolation of glacier water
+res.dir = "results/historical/"
+plot.dir= "figures/historical/"
+plot.nm = "Glacier_percolation_historical_mean_mmYr_1980-2015.png"
+
+perc_pg = brick(file.path(res.dir, "Perc_pg_mmYr.nc"))  # yearly time series
+perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
+
+# for purposes of plotting, make 0 = NA (no color)
+perc_pg_mean[perc_pg_mean == 0] = NA
+perc_pg_mean = mask(perc_pg_mean, basin.shape)
+perc_pg_mean[perc_pg_mean < 0.1] = NA
+
+library(RColorBrewer)
+
+png(file.path(plot.dir, plot.nm), height=1200, width=1600, res=140)
+plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+plot(perc_pg_mean, col = brewer.pal(9, "YlGnBu")[3:9], legend=F, add = T)
+plot(basin.shape,  add = T, lwd=0.7)
+plot(perc_pg_mean, col = brewer.pal(9, "YlGnBu")[3:9],  add=T, box=F, axes=T, las=1,
+     legend.only=T, legend.width=0.4, horizontal=T, smallplot=c(0.068, 0.33, 0.15, 0.17),
+     axis.args=list(cex.axis=1),
+     legend.args=list(text='Percolation of Glacier Runoff (mm/yr)', side=3, font=1, line=0.1, cex=1))
+dev.off()

@@ -46,6 +46,12 @@ MMM_RES_plot_wrapper = function(res.dir,        # results directory from which t
   for(b in 1:length(ex.basin.names)){
     basin = as.character(ex.basin.names[b])
     
+    # load multi-model data frames
+    gl_runoff  = read.csv(file.path(res.dir, paste("Glacier_runoff_basins_km3Yr_", basin, ".csv", sep="")), header=T, row.names = 1)
+    gl_et      = read.csv(file.path(res.dir, paste("ET_pg_basins_km3Yr_", basin, ".csv", sep="")),          header=T, row.names = 1)
+    gl_ocean   = read.csv(file.path(res.dir, paste("Glacier_to_ocean_km3Yr_", basin, ".csv", sep="")),      header=T, row.names = 1)
+    gl_storage = read.csv(file.path(res.dir, paste("Storage_basins_km3Yr_", basin, ".csv", sep="")),        header=T, row.names = 1)
+    
     # Export = gl_ocean + gl_et
     gl_exp = gl_ocean + gl_et
     
