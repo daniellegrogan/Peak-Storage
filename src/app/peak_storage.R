@@ -94,7 +94,7 @@ gcm.list = c("CanESM2",
              #"GISS-E2-R",
              "IPSL-CM5A-LR",
              "MPI-ESM-LR")
-             #"NorESM1-M"
+             "NorESM1-M"
 
 ### Historical GCMs ###
 years = seq(2000, 2005)
@@ -113,7 +113,7 @@ lapply(gcm.list,
        )
 
 ### Future GCMs
-# NB - processing takes > 15 min per GCM
+# NB - processing can take > 15 min per GCM
 years = seq(2006, 2099)
 
 # RCP 4.5
@@ -132,19 +132,19 @@ lapply(gcm.list,
 )
 
 # RCP 8.5
-# lapply(gcm.list, 
-#        FUN = function(x) 
-#        {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
-#                     basin.shape,
-#                     basin.ID,
-#                     up.area,
-#                     ex.basins,
-#                     gl.path,
-#                     model = x, 
-#                     rcp = 'rcp85', 
-#                     years,
-#                     out.path = file.path("results", x, "rcp85"))}
-# )
+lapply(gcm.list,
+       FUN = function(x)
+       {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
+                    basin.shape,
+                    basin.ID,
+                    up.area,
+                    ex.basins,
+                    gl.path,
+                    model = x,
+                    rcp = 'rcp85',
+                    years,
+                    out.path = file.path("results", x, "rcp85"))}
+)
 
 ################################################################################################################################
 ### Calculate multi-model means
@@ -154,7 +154,7 @@ res.dir.base = "results/"
 ## Time series data
 # Sum of all exorheic basins
 basin = "Ex"
-rcp = "rcp45"
+rcp = "rcp85"
 years = seq(2000, 2099)
 gl_runoff = multi_model_df(res.dir.base, 
                            gcm.list,
@@ -248,14 +248,14 @@ lapply(file.names,
 )
 
 # RCP 8.5
-# rcp = 'rcp85'
-# lapply(file.names, 
-#        fun = function(x) multi_model_raster(res.dir.base, 
-#                                             gcm.list,     
-#                                             file.nm = x,       
-#                                             rcp,            
-#                                             out.dir)
-# )
+rcp = 'rcp85'
+lapply(file.names,
+       fun = function(x) multi_model_raster(res.dir.base,
+                                            gcm.list,
+                                            file.nm = x,
+                                            rcp,
+                                            out.dir)
+)
 
 
 ### Multi-model mean from raw WBM results: IrrGrwt_mm_pg (average mm/year)
@@ -284,15 +284,15 @@ wbm_model_mean(file.path.list,
                ret = 0) 
   
 # RCP 8.5
-# rcp = 'rcp85'
-# file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
-# 
-# wbm_model_mean(file.path.list, 
-#                yrs     = NA,          
-#                out.dir = "results/multi_model_mean",         
-#                out.nm  = "IrrGrwt_mm_pg_rcp85.nc",        
-#                ret = 0) 
-# 
+rcp = 'rcp85'
+file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
+
+wbm_model_mean(file.path.list,
+               yrs     = NA,
+               out.dir = "results/multi_model_mean",
+               out.nm  = "IrrGrwt_mm_pg_rcp85.nc",
+               ret = 0)
+
 ################################################################################################################################
 
 ### Climatologies
@@ -313,10 +313,19 @@ plot.dir = file.path("figures", paste(rcp, "MMM", sep="_"))
 # make RES plots for sum of exorheic basins, and each basin individually
 # RES := Runoff, Export, Storage
 MMM_RES_plot_wrapper(res.dir        = 'results/multi_model_mean/',         # results directory from which to read
-                     ex.basin.names = ex.basins$names,                     # exorheic basin names
+                     ex.basin.names = ex.basins$name,                     # exorheic basin names
                      plot.dir       = plot.dir)                            # plot directory to which to write plots
   
 
+
+rcp = 'rcp85'
+plot.dir = file.path("figures", paste(rcp, "MMM", sep="_"))
+
+# make RES plots for sum of exorheic basins, and each basin individually
+# RES := Runoff, Export, Storage
+MMM_RES_plot_wrapper(res.dir        = 'results/multi_model_mean/',         # results directory from which to read
+                     ex.basin.names = ex.basins$name,                     # exorheic basin names
+                     plot.dir       = plot.dir)                            # plot directory to which to write plots
 
 
 
