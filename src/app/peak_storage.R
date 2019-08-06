@@ -79,7 +79,6 @@ gl_analysis(wbm.path,
             years,
             out.path = "results/historical")
   
-  
 ### GCMs ###
 gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
@@ -314,3 +313,19 @@ plot(perc_pg_mean, col = brewer.pal(9, "YlGnBu")[3:9],  add=T, box=F, axes=T, la
      axis.args=list(cex.axis=1),
      legend.args=list(text='Percolation of Glacier Runoff (mm/yr)', side=3, font=1, line=0.1, cex=1))
 dev.off()
+
+# rice paddy percolation
+rice_perc_frac = brick("results/historical/RicePerc_FracPerc_pg.nc")
+rice_perc_frac[rice_perc_frac > 1] = 1
+plot(subset(rice_perc_frac,3))
+
+rice_perc_ts = read.csv("results/historical/RicePerc_pg_basins_km3Yr.csv")
+all_perc_ts  = read.csv("results/historical/Perc_pg_basins_km3Yr.csv")
+
+rice_perc_all = colSums(rice_perc_ts[,2:ncol(rice_perc_ts)])
+all_perc_all = colSums(all_perc_ts[,2:ncol(all_perc_ts)])
+
+plot(all_perc_all, type='l', ylim=c(0,25))
+lines(rice_perc_all, col='blue')
+
+plot(rice_perc_all/all_perc_all, type='l')
