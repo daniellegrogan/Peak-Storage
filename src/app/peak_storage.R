@@ -216,6 +216,18 @@ for(r in h.rcp.list){
 
 ################################################################################################################################
 
+### Summary Table
+## metrics for each basin, for sum of all exorheic basins: 
+# Glacier runoff
+# Glacier water percolation
+# Glacier water percolation by way of rice paddies
+# Glacier water evapotranspiration
+# Glacier water runoff to ocean
+# Glacier water total storage
+
+
+
+
 ### Climatologies
 # brk.data = raster::brick("results/multi_model_mean/IrrGrwt_mm_pg_historical.nc")
 # time.step = 6

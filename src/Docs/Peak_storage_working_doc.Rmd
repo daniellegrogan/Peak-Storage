@@ -7,6 +7,10 @@ output: word_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(RColorBrewer)
+library(raster)
+library(rgeos)
+library(rgdal)
 ```
 
 ## Intro
@@ -33,9 +37,37 @@ Rice paddy percolation rates from Wisser et al (2010?  check which paper)
 
 
 ## Results
+# Glacier melt water percolation
+Main result: 
+```{r perc, echo=FALSE}
+basin.shape = readOGR("../../data/basins_hma", "basins_hma")
+coastline = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
+coastline = spTransform(coastline, crs(basin.shape))
+
+# plot boundaries
+xl = c(59, 120)
+yl = c(9, 49)
+
+perc_pg = brick("../../results/historical/Perc_pg_mmYr.nc") # yearly time series
+perc_pg_mean = calc(perc_pg, fun = mean)                # mean value over time
+
+# for purposes of plotting, make 0 = NA (no color)
+perc_pg_mean[perc_pg_mean == 0] = NA
+perc_pg_mean = mask(perc_pg_mean, basin.shape)
+perc_pg_mean[perc_pg_mean < 0.1] = NA
+
+plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+plot(perc_pg_mean, col = brewer.pal(9, "YlGnBu")[3:9], legend=F, add = T)
+plot(basin.shape,  add = T, lwd=0.7)
+plot(perc_pg_mean, col = brewer.pal(9, "YlGnBu")[3:9],  add=T, box=F, axes=T, las=1,
+     legend.only=T, legend.width=0.4, horizontal=T, smallplot=c(0.068, 0.33, 0.15, 0.17),
+     axis.args=list(cex.axis=1),
+     legend.args=list(text='Percolation of Glacier Runoff (mm/yr)', side=3, font=1, line=0.1, cex=1))
+```
+
 
 # The role of paddy rice
-Rice paddies are responsible for ~25% of glacier melt percolation
+Rice paddies are responsible for ~25% of glacier melt percolation (range: 21% - 26%, aggregated across all HMA basins)
 
 ## Conclusions
 ```{r cars}

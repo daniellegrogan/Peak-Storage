@@ -13,6 +13,7 @@ library(rgdal)
 # irrigated areas
 # rice paddies
 # rice paddy percolation rates
+# inter-basin transfers
 
 ### shapefiles for plotting
 coastline   = readOGR("/net/nfs/squam/raid/userdata/dgrogan/data/map_data/land-polygons-generalized-3857/", layer = "land_polygons_z4")
@@ -97,3 +98,99 @@ plot(rice.perc,   add=T, box=F, axes=T, las=1,
      axis.args=list(cex.axis=1),
      legend.args=list(text='Rice Paddy Percolation Rate (mm/day)', side=3, font=1, line=0.1, cex=1))
 dev.off()
+
+# IBT
+wbm.path = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/ERA_hist"
+ibt = read.delim(list.files(file.path(wbm.path, "diversion"), full.names=T), header=T, sep="\t")
+ibt.data = read.delim("/net/nfs/zero/data3/WBM_TrANS/spreadsheets/InterBasinWaterTransferDatabase_NoFuture.csv",
+                      skip = 7, header=T, sep="\t")
+
+
+# identify rows in IBT database that match simulation IBTs.  Subset to these rows
+ibt.IDs = sub("X", "", colnames(ibt)[2:ncol(ibt)])
+ibt.rows = ibt.data$ID %in% ibt.IDs 
+ibt.data.sub = as.data.frame(ibt.data[ibt.rows,])
+
+ibt.from.coords = subset(ibt.data.sub, select = c("ID", "STN6.From.Longitude", "STN6.From.Latitude"))
+ibt.to.coords   = subset(ibt.data.sub, select = c("ID", "STN6.To.Longitude",   "STN6.To.Latitude"))
+
+# Conver to spatial points data set
+coordinates(ibt.from.coords) = ~ STN6.From.Longitude + STN6.From.Latitude
+coordinates(ibt.to.coords) = ~ STN6.To.Longitude + STN6.To.Latitude
+
+# harmonize projections
+crs(ibt.from.coords) = crs(ibt.to.coords) = crs(shape)
+
+# all IBTs in simulation
+plot.nm = "IBT_full_netwk.png"
+png(file.path(plot.dir, plot.nm),
+    height=1200, width=1600, res=140)
+plot(coastline,  xlim = xl, ylim = yl, border='grey70', lwd=1)
+plot(basin.shape, lwd=0.8, add=T)
+plot(ibt.from.coords, pch = 21, cex=0.7, bg='turquoise3', col="turquoise4", add=T)
+plot(ibt.to.coords,   pch = 1, cex=0.3,  col='turquoise4',  add=T)
+for(i in 1:length(ibt.to.coords)){
+  arrows(x0 = ibt.from.coords@coords[i,1], 
+         y0 = ibt.from.coords@coords[i,2], 
+         x1 = ibt.to.coords@coords[i,1],
+         y1 = ibt.to.coords@coords[i,2], 
+         length = 0.06,
+         lwd = 1.2,
+         col = 'darkblue')
+}
+dev.off()
+
+
+### Categorize IBTs
+ibt.from.basins = over(ibt.from.coords, shape, fn = NULL)
+ibt.to.basins   = over(ibt.to.coords, shape, fn = NULL)
+
+ibt.df = as.data.frame(cbind(ibt.from.coords@data$ID, 
+                             ibt.from.basins$Basin_ID, 
+                             ibt.to.basins$Basin_ID))
+colnames(ibt.df) = c("IBT_ID", "From_ID", "To_ID")
+
+ibt.df[is.na(ibt.df)] = 0
+ibt.df$CrossBorder = (ibt.df$From_ID != ibt.df$To_ID)
+ibt.df$CrossOut    = (ibt.df$From_ID > 0   &  ibt.df$To_ID == 0)
+ibt.df$CrossIn     = (ibt.df$From_ID == 0  &  ibt.df$To_ID > 0)
+ibt.df$Out         = (ibt.df$From_ID == 0  &  ibt.df$To_ID == 0)
+
+ibt.df$Col = rep("grey", nrow(ibt.df))
+ibt.df$lwd = rep(1.2, nrow(ibt.df))
+for(i in 1:nrow(ibt.df)){
+  if(ibt.df$CrossBorder[i] == T){
+    ibt.df$Col[i] = "blue"
+    ibt.df$lwd[i] = 2.5
+  }
+  
+  if(ibt.df$CrossOut[i] == T){
+    ibt.df$Col[i] = "darkorange2"
+  }else if(ibt.df$CrossIn[i] == T){
+      ibt.df$Col[i] = "darkblue"
+  }else if(ibt.df$Out[i] == T){
+    ibt.df$Col[i] = "grey"
+  }
+}
+
+
+plot.nm = "IBT_crossing.png"
+png(file.path(plot.dir, plot.nm),
+    height=1200, width=1600, res=140)
+plot(coastline.shadow, xlim = xl, ylim = yl, border='grey90', lwd=4)
+plot(coastline,        xlim = xl, ylim = yl, border='grey70', col='white', lwd=1, add=T)
+plot(basin.shape, lwd=0.8, border='grey30', add=T)
+plot(ibt.from.coords, pch = 21, cex=0.7, bg='turquoise3', col="turquoise4", add=T)
+plot(ibt.to.coords,   pch = 1, cex=0.3,  col='turquoise4',  add=T)
+for(i in 1:length(ibt.to.coords)){
+  arrows(x0 = ibt.from.coords@coords[i,1], 
+         y0 = ibt.from.coords@coords[i,2], 
+         x1 = ibt.to.coords@coords[i,1],
+         y1 = ibt.to.coords@coords[i,2], 
+         length = 0.07,
+         angle = 40,
+         lwd = ibt.df$lwd[i],
+         col = ibt.df$Col[i])
+}
+dev.off()
+
