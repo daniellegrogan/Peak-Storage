@@ -62,7 +62,6 @@ ex.basins = basin.shape[basin.shape$name == "Ganges" |
 ### Call gl_analysis() function:
 
 ### Historical ERA-Interim ###
-#wbm.path   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers/ERA_hist/yearly"
 wbm.path   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/ERA_hist/yearly"
 gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
 
@@ -83,7 +82,6 @@ gl_analysis(wbm.path,
   
 ### GCMs ###
 gl.path    =  "/net/nfs/merrimack/raid2/data/glaciers_6.0/HiMAT_full_210_Subset"
-#wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Frontiers"
 wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
 gcm.list = c("CanESM2", 
              "CCSM4",
@@ -93,8 +91,8 @@ gcm.list = c("CanESM2",
              "GFDL-ESM2M",
              #"GISS-E2-R",
              "IPSL-CM5A-LR",
-             "MPI-ESM-LR")
-             "NorESM1-M"
+             "MPI-ESM-LR",
+             "NorESM1-M")
 
 ### Historical GCMs ###
 years = seq(2000, 2005)
@@ -115,36 +113,23 @@ lapply(gcm.list,
 ### Future GCMs
 # NB - processing can take > 15 min per GCM
 years = seq(2006, 2099)
+rcp.list = c("rcp45", "rcp85")
 
-# RCP 4.5
-lapply(gcm.list, 
-       FUN = function(x) 
-       {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp45/yearly"),
-                    basin.shape,
-                    basin.ID,
-                    up.area,
-                    ex.basins,
-                    gl.path,
-                    model = x, 
-                    rcp = 'rcp45', 
-                    years,
-                    out.path = file.path("results", x, "rcp45"))}
-)
-
-# RCP 8.5
-lapply(gcm.list,
-       FUN = function(x)
-       {gl_analysis(wbm.path = file.path(wbm.base, x, "rcp85/yearly"),
-                    basin.shape,
-                    basin.ID,
-                    up.area,
-                    ex.basins,
-                    gl.path,
-                    model = x,
-                    rcp = 'rcp85',
-                    years,
-                    out.path = file.path("results", x, "rcp85"))}
-)
+for(r in rcp.list){
+  lapply(gcm.list, 
+         FUN = function(x) 
+         {gl_analysis(wbm.path = file.path(wbm.base, x, r, "yearly"),
+                      basin.shape,
+                      basin.ID,
+                      up.area,
+                      ex.basins,
+                      gl.path,
+                      model = x, 
+                      rcp = r, 
+                      years,
+                      out.path = file.path("results", x, r))}
+  )
+}
 
 ################################################################################################################################
 ### Calculate multi-model means
@@ -152,74 +137,49 @@ out.dir = "results/multi_model_mean"
 res.dir.base = "results/"
 
 ## Time series data
-# Sum of all exorheic basins
-basin = "Ex"
-rcp = "rcp85"
-years = seq(2000, 2099)
-gl_runoff = multi_model_df(res.dir.base, 
-                           gcm.list,
-                           file.nm = "Glacier_runoff_basins_km3Yr.csv",
-                           years,          
-                           rcp,           
-                           basin,
-                           out.dir)
-gl_storage = multi_model_df(res.dir.base, 
-                            gcm.list,
-                            file.nm = "Storage_basins_km3Yr.csv",
-                            years,          
-                            rcp,           
-                            basin,
-                            out.dir)
-gl_ocean = multi_model_df(res.dir.base, 
-                          gcm.list,
-                          file.nm = "Glacier_to_ocean_km3Yr.csv",
-                          years,          
-                          rcp,           
-                          basin,
-                          out.dir)
-gl_et = multi_model_df(res.dir.base, 
-                       gcm.list,
-                       file.nm = "ET_pg_basins_km3Yr.csv",
-                       years,          
-                       rcp,           
-                       basin,
-                       out.dir)
+years = seq(2000, 2099)  # for this analysis, append future to historical
+rcp.list = c("rcp45", "rcp85")
 
-# Each exorheic basin
-ex.basin.names = ex.basins$name
-for(b in 1:length(ex.basin.names)){
-  basin = as.character(ex.basin.names[b])
-  gl_runoff = multi_model_df(res.dir.base, 
-                             gcm.list,
-                             file.nm = "Glacier_runoff_basins_km3Yr.csv",
-                             years,          
-                             rcp,           
-                             basin,
-                             out.dir)
-  gl_storage = multi_model_df(res.dir.base, 
-                              gcm.list,
-                              file.nm = "Storage_basins_km3Yr.csv",
-                              years,          
-                              rcp,           
-                              basin,
-                              out.dir)
-  gl_ocean = multi_model_df(res.dir.base, 
-                            gcm.list,
-                            file.nm = "Glacier_to_ocean_km3Yr.csv",
-                            years,          
-                            rcp,           
-                            basin,
-                            out.dir)
-  gl_et = multi_model_df(res.dir.base, 
+input.file.list = c("Glacier_runoff_basins_km3Yr.csv",
+                    "Storage_basins_km3Yr.csv",
+                    "Glacier_to_ocean_km3Yr.csv",
+                    "ET_pg_basins_km3Yr.csv")
+
+for(r in rcp.list){
+  
+  # Sum of all exorheic basins
+  basin = "Ex"
+  lapply(input.file.list,
+         FUN = function(x) 
+         {multi_model_df(res.dir.base, 
                          gcm.list,
-                         file.nm = "ET_pg_basins_km3Yr.csv",
+                         file.nm = x,
                          years,          
-                         rcp,           
+                         rcp = r,           
                          basin,
-                         out.dir)
-}
+                         out.dir)}
+         )
+  
+  # Each exorheic basin
+  ex.basin.names = ex.basins$name
+  for(b in 1:length(ex.basin.names)){
+    basin = as.character(ex.basin.names[b])
+    lapply(input.file.list,
+           FUN = function(x) 
+           {multi_model_df(res.dir.base, 
+                           gcm.list,
+                           file.nm = x,
+                           years,          
+                           rcp = r,           
+                           basin,
+                           out.dir)}
+    )
+    
+  } # end basin loop
+} # end rcp loop
 
-## Raster data
+
+## Raster data (output from gl_analysis())
 res.dir.base = "results"
 file.names = c("ET_pg_mmYr.nc", 
                "Glacier_runoff_mmYr.nc",
@@ -227,71 +187,33 @@ file.names = c("ET_pg_mmYr.nc",
                "IrrGwpg_percent_of_IrrGW.nc",
                "Perc_pg_mmYr.nc")
 
-# Historical GCMs
-rcp = 'historical'
-lapply(file.names, 
-       fun = function(x) multi_model_raster(res.dir.base, 
-                                            gcm.list,     
-                                            file.nm = x,       
-                                            rcp,            
-                                            out.dir)
-       )
-
-# RCP 4.5
-rcp = 'rcp45'
-lapply(file.names, 
-       fun = function(x) multi_model_raster(res.dir.base, 
-                                            gcm.list,     
-                                            file.nm = x,       
-                                            rcp,            
-                                            out.dir)
-)
-
-# RCP 8.5
-rcp = 'rcp85'
-lapply(file.names,
-       fun = function(x) multi_model_raster(res.dir.base,
-                                            gcm.list,
-                                            file.nm = x,
-                                            rcp,
-                                            out.dir)
-)
+h.rcp.list = c("historical", "rcp45", "rcp85")
+for(r in h.rcp.list){
+  lapply(file.names, 
+         fun = function(x) multi_model_raster(res.dir.base, 
+                                              gcm.list,     
+                                              file.nm = x,       
+                                              rcp = r,            
+                                              out.dir)
+  )
+}
 
 
-### Multi-model mean from raw WBM results: IrrGrwt_mm_pg (average mm/year)
-
+### Multi-model mean from raw WBM results
 wbm.base   = "/net/nfs/squam/raid/data/WBM_TrANS/HiMAT/Peak_Storage/"
-varname    = "IrrGrwt_mm_pg"
+varname.list = c("IrrGrwt_mm_pg", "IrrPercRice_mm_pg")
 
-# Historical GCMs
-rcp        = 'historical'
-file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
-
-wbm_model_mean(file.path.list, 
-               yrs     = NA,          
-               out.dir = "results/multi_model_mean",         
-               out.nm  = "IrrGrwt_mm_pg_historical.nc",        
-               ret = 0)   
-
-# RCP 4.5
-rcp = 'rcp45'
-file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
-
-wbm_model_mean(file.path.list, 
-               yrs     = NA,          
-               out.dir = "results/multi_model_mean",         
-               out.nm  = "IrrGrwt_mm_pg_rcp45.nc",        
-               ret = 0) 
-  
-# RCP 8.5
-rcp = 'rcp85'
-file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, rcp, "yearly", varname))
-
-wbm_model_mean(file.path.list,
-               yrs     = NA,
-               out.dir = "results/multi_model_mean",
-               out.nm  = "IrrGrwt_mm_pg_rcp85.nc",
-               ret = 0)
+for(r in h.rcp.list){
+  for(v in varname.list){
+    file.path.list = lapply(gcm.list, FUN = function(x) file.path(wbm.base, x, r, "yearly", v))
+    
+    wbm_model_mean(file.path.list, 
+                   yrs     = NA,          
+                   out.dir = "results/multi_model_mean",         
+                   out.nm  = paste(v, "_", r, ".nc", sep=""),        
+                   ret = 0)  
+  }
+}
 
 ################################################################################################################################
 
