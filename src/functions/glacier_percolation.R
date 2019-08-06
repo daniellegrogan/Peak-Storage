@@ -40,6 +40,14 @@ glacier_percolation = function(wbm.path,                # path to wbm files. for
                              filename = file.path(out.path, "Perc_pg_mmYr.nc"),
                              overwrite=T)
   
+  # Rice paddy percolation as a fraction of total percolation
+  #    a. in mm/year
+  perc.rice.frac = overlay(perc.rice,
+                           perc.ineff, 
+                           fun = function(x,y){return(x/y)},
+                           filename = file.path(out.path, "RicePerc_FracPerc_pg.nc"),
+                           overwrite=T)
+  
   #      spatial aggregation by basin. Output timeseries (csv) to file
   #       time series 
   total.perc.basins = spatial_aggregation(raster.data = total.perc.brick,
@@ -47,11 +55,20 @@ glacier_percolation = function(wbm.path,                # path to wbm files. for
                                           s           = 1,
                                           weight      = T, 
                                           poly.out    = F)
-  colnames(total.perc.basins) = years
-  rownames(total.perc.basins) = shape$name
-  write.csv(total.perc.basins, file.path(out.path, "Perc_pg_basins_km3Yr.csv"))
   
-  #    b. as % of glacier runoff:
+  rice.perc.basins = spatial_aggregation(raster.data = perc.rice * 365,  # x365 to convert from mean annual to annual sum 
+                                         shapefile   = shape,
+                                         s           = 1,
+                                         weight      = T, 
+                                         poly.out    = F)
+  
+  colnames(total.perc.basins) = colnames(rice.perc.basins) = years
+  rownames(total.perc.basins) = rownames(rice.perc.basins) = shape$name
+  
+  write.csv(total.perc.basins, file.path(out.path, "Perc_pg_basins_km3Yr.csv"))
+  write.csv(rice.perc.basins,  file.path(out.path, "RicePerc_pg_basins_km3Yr.csv"))
+  
+  #    b. total perc as % of glacier runoff:
   perc_percent = 100* total.perc.basins/glacier.runoff.basins
   perc_percent[is.infinite(perc_percent)] = NA  # divide by zero should result in NA, not inf
   write.csv(perc_percent, file.path(out.path, "Perc_pg_basins_percentGlRunoff.csv"))
